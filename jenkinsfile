@@ -1,49 +1,30 @@
-pipeline {
-    agent any
-    environment {
-        AWS_REGION = 'us-west-2'  // Specify your AWS region
-        S3_BUCKET = 'your-s3-bucket-name'  // Your S3 bucket name
-        S3_KEY = 'myapp/releases/myapp-v1.zip'  // Path to the .zip file in S3
-        CODEDEPLOY_APPLICATION = 'your-application-name'  // Your CodeDeploy application name
-        CODEDEPLOY_DEPLOYMENT_GROUP = 'your-deployment-group-name'  // Your CodeDeploy deployment group name
-    }
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/username/repo.git'  // Clone your repository
-            }
-        }
-        stage('Build') {
-            steps {
-                // Add your build commands (for example, compiling or packaging the application)
-                sh 'make build'  // Example: A build step (replace with your actual build command)
-            }
-        }
-        stage('Package Application') {
-            steps {
-                // Compress the application into a .zip file
-                sh 'zip -r myapp-v1.zip *'
-            }
-        }
-        stage('Upload to S3') {
-            steps {
-                withAWS(region: "$AWS_REGION", credentials: 'aws-credentials-id') {
-                    s3Upload(bucket: "$S3_BUCKET", file: 'myapp-v1.zip', path: "$S3_KEY")
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                withAWS(region: "$AWS_REGION", credentials: 'aws-credentials-id') {
-                    awsCodeDeploy(
-                        applicationName: "$CODEDEPLOY_APPLICATION",
-                        deploymentGroupName: "$CODEDEPLOY_DEPLOYMENT_GROUP",
-                        s3bucket: "$S3_BUCKET",
-                        s3key: "$S3_KEY",
-                        waitForCompletion: true
-                    )
-                }
-            }
-        }
-    }
+ pipeline {
+         agent any
+         stages {
+             stage('Clone Repository') {
+                 steps {
+                     git ' https://github.com/Gnanaprakash111/web.nodejs.git'
+                 }
+             }
+             stage('Build') {
+                 steps {
+                     sh 'make build' // or any build steps required by your application
+                 }
+             }
+             stage('Deploy') {
+                 steps {
+                     withAWS(region: 'us-eat-1', credentials: 'gnanaprakash_credentials') {
+                         awsCodeDeploy(
+                             applicationName: 'my-web-app',
+                             deploymentGroupName: 'my-web-app-deploymentgroup',
+                             s3bucket: 'web-deployment-bucket',
+                             s3key: ' s3://web-deployment-bucket/jenkinsfile',
+                             waitForCompletion: true
+                         )
+                     }
+                 }
+             }
+         }
+     }
+
 }
